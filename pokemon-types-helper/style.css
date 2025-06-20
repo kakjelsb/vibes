@@ -133,3 +133,37 @@ ul li, .pokemon-type {
         width: 100%;
     }
 }
+
+/* Autocomplete styles */
+#autocomplete-suggestions {
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute; /* Position relative to the input's parent */
+    width: calc(100% - 40px); /* Adjust based on container padding */
+    max-width: 300px; /* Match input max-width */
+    background-color: white;
+    z-index: 100;
+    text-align: left;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.autocomplete-item:hover {
+    background-color: #f0f0f0;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+/* Adjust search section for positioning autocomplete */
+.search-section {
+    position: relative; /* For positioning the autocomplete suggestions */
+}

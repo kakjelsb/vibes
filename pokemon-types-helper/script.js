@@ -9,14 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const pokemonTypesElement = document.getElementById('pokemon-types');
     const superEffectiveTypesList = document.getElementById('super-effective-types');
     const effectiveAgainstTypesList = document.getElementById('effective-against-types');
-    const pokemonNamesDatalist = document.getElementById('pokemon-names');
-
     const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2/';
-    const POKEMON_COUNT = 1025; // As of Gen 9, there are 1025 Pokémon
+    const AUTOCOMPLETE_LIMIT = 10; // Limit for autocomplete suggestions
 
-    let allPokemonNames = [];
+    let allPokemonNames = []; // This will store all names, but we'll filter for display
 
-    // Fetch all Pokémon names for autocomplete on load
+    // Fetch all Pokémon names once for efficient filtering
     fetchAllPokemonNames();
 
     searchButton.addEventListener('click', fetchPokemonData);
@@ -26,28 +24,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    pokemonSearchInput.addEventListener('input', () => {
+        const searchTerm = pokemonSearchInput.value.toLowerCase().trim();
+        if (searchTerm.length > 0) {
+            const filteredNames = allPokemonNames.filter(name =>
+                name.startsWith(searchTerm)
+            ).slice(0, AUTOCOMPLETE_LIMIT); // Limit the suggestions
+            populateAutocomplete(filteredNames);
+        } else {
+            clearAutocomplete();
+        }
+    });
+
     async function fetchAllPokemonNames() {
         try {
-            const response = await fetch(`${POKEAPI_BASE_URL}pokemon?limit=${POKEMON_COUNT}`);
+            // Fetch a large enough list to cover all current and future Pokémon
+            // A very large limit might be slow, consider a more dynamic approach for extremely large datasets
+            // For ~1000 Pokémon, this is acceptable.
+            const response = await fetch(`${POKEAPI_BASE_URL}pokemon?limit=2000`); // Increased limit to cover more
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             allPokemonNames = data.results.map(pokemon => pokemon.name);
-            populateDatalist(allPokemonNames);
         } catch (error) {
-            console.error('Error fetching all Pokémon names:', error);
-            // Optionally, display a message to the user that autocomplete might not work
+            console.error('Error fetching all Pokémon names for autocomplete:', error);
         }
     }
 
-    function populateDatalist(names) {
-        pokemonNamesDatalist.innerHTML = '';
+    function populateAutocomplete(names) {
+        // Create a temporary datalist or use a custom suggestion box
+        // For simplicity, we'll create a simple dropdown below the input
+        let existingSuggestions = document.getElementById('autocomplete-suggestions');
+        if (!existingSuggestions) {
+            existingSuggestions = document.createElement('div');
+            existingSuggestions.id = 'autocomplete-suggestions';
+            pokemonSearchInput.parentNode.insertBefore(existingSuggestions, pokemonSearchInput.nextSibling);
+        }
+        existingSuggestions.innerHTML = '';
+        if (names.length === 0) {
+            existingSuggestions.classList.add('hidden');
+            return;
+        }
+        existingSuggestions.classList.remove('hidden');
+
         names.forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            pokemonNamesDatalist.appendChild(option);
+            const suggestionItem = document.createElement('div');
+            suggestionItem.classList.add('autocomplete-item');
+            suggestionItem.textContent = capitalizeFirstLetter(name);
+            suggestionItem.addEventListener('click', () => {
+                pokemonSearchInput.value = name;
+                clearAutocomplete();
+                fetchPokemonData(); // Trigger search on selection
+            });
+            existingSuggestions.appendChild(suggestionItem);
         });
+    }
+
+    function clearAutocomplete() {
+        const existingSuggestions = document.getElementById('autocomplete-suggestions');
+        if (existingSuggestions) {
+            existingSuggestions.innerHTML = '';
+            existingSuggestions.classList.add('hidden');
+        }
     }
 
     async function fetchPokemonData() {
