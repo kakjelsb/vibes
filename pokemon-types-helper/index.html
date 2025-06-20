@@ -10,7 +10,8 @@
     <div class="container">
         <h1>Pokémon Type Finder</h1>
         <div class="search-section">
-            <input type="text" id="pokemon-search" placeholder="Enter Pokémon name">
+            <input type="text" id="pokemon-search" placeholder="Enter Pokémon name" list="pokemon-names">
+            <datalist id="pokemon-names"></datalist>
             <button id="search-button">Search</button>
         </div>
         <div id="loading-message" class="hidden">Loading...</div>

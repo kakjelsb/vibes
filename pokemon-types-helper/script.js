@@ -9,8 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const pokemonTypesElement = document.getElementById('pokemon-types');
     const superEffectiveTypesList = document.getElementById('super-effective-types');
     const effectiveAgainstTypesList = document.getElementById('effective-against-types');
+    const pokemonNamesDatalist = document.getElementById('pokemon-names');
 
     const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2/';
+    const POKEMON_COUNT = 1025; // As of Gen 9, there are 1025 Pokémon
+
+    let allPokemonNames = [];
+
+    // Fetch all Pokémon names for autocomplete on load
+    fetchAllPokemonNames();
 
     searchButton.addEventListener('click', fetchPokemonData);
     pokemonSearchInput.addEventListener('keypress', (event) => {
@@ -18,6 +25,30 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchPokemonData();
         }
     });
+
+    async function fetchAllPokemonNames() {
+        try {
+            const response = await fetch(`${POKEAPI_BASE_URL}pokemon?limit=${POKEMON_COUNT}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            allPokemonNames = data.results.map(pokemon => pokemon.name);
+            populateDatalist(allPokemonNames);
+        } catch (error) {
+            console.error('Error fetching all Pokémon names:', error);
+            // Optionally, display a message to the user that autocomplete might not work
+        }
+    }
+
+    function populateDatalist(names) {
+        pokemonNamesDatalist.innerHTML = '';
+        names.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            pokemonNamesDatalist.appendChild(option);
+        });
+    }
 
     async function fetchPokemonData() {
         const pokemonName = pokemonSearchInput.value.toLowerCase().trim();
