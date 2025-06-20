@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchButton.addEventListener('click', fetchPokemonData);
     pokemonSearchInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
+            clearAutocomplete(); // Clear suggestions on Enter
             fetchPokemonData();
         }
     });
@@ -95,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
             displayError('Please enter a Pokémon name.');
             return;
         }
+
+        clearAutocomplete(); // Clear suggestions when search is initiated
 
         resetDisplay();
         loadingMessage.classList.remove('hidden');
