@@ -33,6 +33,50 @@ const gameState = {
     owowowowSound: new Audio('sfx/owowowow.m4a'),
 };
 
+// Configuration for falling objects
+const fallingObjectConfigs = {
+    good: {
+        emojis: ['⭐', '🌟', '✨', '💫'],
+        points: 1,
+        sound: gameState.yippeeSound,
+        width: 50,
+        height: 50,
+        baseSpeed: 3,
+        speedVariance: 2,
+        spinChance: 0.3
+    },
+    bad: {
+        emojis: ['👾'],
+        points: -1,
+        sound: gameState.ouchSound,
+        width: 50,
+        height: 50,
+        baseSpeed: 3,
+        speedVariance: 2,
+        spinChance: 1 // Always spin
+    },
+    diamond: {
+        emojis: ['💎', '💠', '🔷', '🔶'],
+        points: 10,
+        sound: gameState.yahooSound,
+        width: 50,
+        height: 50,
+        baseSpeed: 3,
+        speedVariance: 2,
+        spinChance: 1 // Always spin
+    },
+    skull: {
+        emojis: ['💀'],
+        points: 0, // Special handling for score reset
+        sound: gameState.owowowowSound,
+        width: 50,
+        height: 50,
+        baseSpeed: 3,
+        speedVariance: 2,
+        spinChance: 1 // Always spin
+    }
+};
+
 // DOM elements (still global for easy access, but their properties are in gameState)
 const gameArea = document.getElementById('gameArea');
 const scoreBoard = document.getElementById('scoreBoard');
@@ -193,18 +237,14 @@ function updateFallingObjects() {
 }
 
 function handleCollision(object, index) {
-    if (object.type === 'good') {
-        gameState.score++;
-        gameState.yippeeSound.play();
-    } else if (object.type === 'bad') {
-        gameState.score--;
-        gameState.ouchSound.play();
-    } else if (object.type === 'diamond') {
-        gameState.score += 10;
-        gameState.yahooSound.play();
-    } else if (object.type === 'skull') {
-        gameState.score = 0;
-        gameState.owowowowSound.play();
+    const config = fallingObjectConfigs[object.type];
+    if (config) {
+        if (object.type === 'skull') { // Special handling for skull
+            gameState.score = 0;
+        } else {
+            gameState.score += config.points;
+        }
+        config.sound.play();
     }
     scoreBoard.textContent = `Score: ${gameState.score}`;
     removeObject(index);
