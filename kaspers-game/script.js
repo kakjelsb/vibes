@@ -91,12 +91,14 @@ function initGame() {
     // Create player1 element
     gameState.player1.element = document.createElement('div');
     gameState.player1.element.id = 'player1';
+    gameState.player1.element.classList.add('player-ship'); // Add base player-ship class
     gameState.player1.element.textContent = '🚀';
     gameArea.appendChild(gameState.player1.element);
 
     // Create player2 element
     gameState.player2.element = document.createElement('div');
     gameState.player2.element.id = 'player2';
+    gameState.player2.element.classList.add('player-ship'); // Add base player-ship class
     gameState.player2.element.textContent = '🚀';
     gameArea.appendChild(gameState.player2.element);
 
