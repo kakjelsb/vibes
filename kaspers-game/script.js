@@ -1,85 +1,84 @@
+// Centralized game state object
+const gameState = {
+    score: 0,
+    fallingObjects: [],
+    objectCreationInterval: null,
+    frequencySlider: null,
+    frequencyValueDisplay: null,
+    gameAreaWidth: 0,
+    gameAreaHeight: 0,
+    keysPressed: {},
+    player1: {
+        element: null,
+        x: 0,
+        y: 0,
+        width: 80,
+        height: 60,
+        speed: 10,
+        keys: { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' }
+    },
+    player2: {
+        element: null,
+        x: 0,
+        y: 0,
+        width: 80,
+        height: 60,
+        speed: 10,
+        keys: { left: 'a', right: 'd', up: 'w', down: 's' }
+    },
+    // Sound effects
+    yippeeSound: new Audio('sfx/yippee.m4a'),
+    ouchSound: new Audio('sfx/ouch.m4a'),
+    yahooSound: new Audio('sfx/yahoo.m4a'),
+    owowowowSound: new Audio('sfx/owowowow.m4a'),
+};
+
+// DOM elements (still global for easy access, but their properties are in gameState)
 const gameArea = document.getElementById('gameArea');
 const scoreBoard = document.getElementById('scoreBoard');
 
-// Sound effects
-const yippeeSound = new Audio('sfx/yippee.m4a');
-const ouchSound = new Audio('sfx/ouch.m4a');
-const yahooSound = new Audio('sfx/yahoo.m4a'); // New sound for diamond
-const owowowowSound = new Audio('sfx/owowowow.m4a'); // New sound for skull
-
-const player1 = {
-    element: null,
-    x: 0,
-    y: 0,
-    width: 80,
-    height: 60, /* Adjusted for emoji size */
-    speed: 10,
-    keys: { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' }
-};
-
-const player2 = {
-    element: null,
-    x: 0,
-    y: 0,
-    width: 80,
-    height: 60, /* Adjusted for emoji size */
-    speed: 10,
-    keys: { left: 'a', right: 'd', up: 'w', down: 's' }
-};
-
-let score = 0;
-let fallingObjects = [];
-let objectCreationInterval;
-let frequencySlider;
-let frequencyValueDisplay;
-
-let gameAreaWidth;
-let gameAreaHeight;
-
 // Update gameAreaWidth and gameAreaHeight after the DOM is loaded and styled
 document.addEventListener('DOMContentLoaded', () => {
-    gameAreaWidth = gameArea.clientWidth;
-    gameAreaHeight = gameArea.clientHeight;
+    gameState.gameAreaWidth = gameArea.clientWidth;
+    gameState.gameAreaHeight = gameArea.clientHeight;
 });
-
-const keysPressed = {};
 
 function initGame() {
     // Create player1 element
-    player1.element = document.createElement('div');
-    player1.element.id = 'player1';
-    player1.element.textContent = '🚀'; // Set spaceship emoji
-    gameArea.appendChild(player1.element);
+    gameState.player1.element = document.createElement('div');
+    gameState.player1.element.id = 'player1';
+    gameState.player1.element.textContent = '🚀';
+    gameArea.appendChild(gameState.player1.element);
 
     // Create player2 element
-    player2.element = document.createElement('div');
-    player2.element.id = 'player2';
-    player2.element.textContent = '🚀'; // Set spaceship emoji
-    gameArea.appendChild(player2.element);
+    gameState.player2.element = document.createElement('div');
+    gameState.player2.element.id = 'player2';
+    gameState.player2.element.textContent = '🚀';
+    gameArea.appendChild(gameState.player2.element);
 
     // Set initial player positions
-    player1.x = (gameAreaWidth / 2) - player1.width - 10; // Left side
-    player1.y = gameAreaHeight - player1.height - 50;
-    updatePlayerPosition(player1);
+    gameState.player1.x = (gameState.gameAreaWidth / 2) - gameState.player1.width - 10;
+    gameState.player1.y = gameState.gameAreaHeight - gameState.player1.height - 50;
+    updatePlayerPosition(gameState.player1);
 
-    player2.x = (gameAreaWidth / 2) + 10; // Right side
-    player2.y = gameAreaHeight - player2.height - 50;
-    updatePlayerPosition(player2);
+    gameState.player2.x = (gameState.gameAreaWidth / 2) + 10;
+    gameState.player2.y = gameState.gameAreaHeight - gameState.player2.height - 50;
+    updatePlayerPosition(gameState.player2);
 
     // Start generating falling objects
-    frequencySlider = document.getElementById('frequencySlider');
-    frequencyValueDisplay = document.getElementById('frequencyValue');
+    gameState.frequencySlider = document.getElementById('frequencySlider');
+    gameState.frequencyValueDisplay = document.getElementById('frequencyValue');
 
     // Set initial frequency display
-    frequencyValueDisplay.textContent = `${(frequencySlider.value / 1000).toFixed(1)}s`;
+    gameState.frequencyValueDisplay.textContent = `${(gameState.frequencySlider.value / 1000).toFixed(1)}s`;
 
     // Start generating falling objects with initial frequency
-    startObjectCreationInterval(parseInt(frequencySlider.value));
+    startObjectCreationInterval(parseInt(gameState.frequencySlider.value));
 
     // Add event listener for slider changes
-    frequencySlider.addEventListener('input', (e) => {
+    gameState.frequencySlider.addEventListener('input', (e) => {
         const newInterval = parseInt(e.target.value);
-        frequencyValueDisplay.textContent = `${(newInterval / 1000).toFixed(1)}s`;
+        gameState.frequencyValueDisplay.textContent = `${(newInterval / 1000).toFixed(1)}s`;
         startObjectCreationInterval(newInterval);
     });
 
@@ -88,8 +87,8 @@ function initGame() {
 }
 
 function startObjectCreationInterval(interval) {
-    clearInterval(objectCreationInterval); // Clear existing interval
-    objectCreationInterval = setInterval(createFallingObject, interval);
+    clearInterval(gameState.objectCreationInterval);
+    gameState.objectCreationInterval = setInterval(createFallingObject, interval);
 }
 
 function updatePlayerPosition(playerObj) {
@@ -99,65 +98,63 @@ function updatePlayerPosition(playerObj) {
 
 function createFallingObject() {
     const objectTypes = ['good', 'bad', 'diamond', 'skull'];
-    // Adjust probabilities for different types
     const rand = Math.random();
     let type = 'good';
-    if (rand < 0.70) { // 70% good objects
+    if (rand < 0.70) {
         type = 'good';
-    } else if (rand < 0.85) { // 15% bad objects
+    } else if (rand < 0.85) {
         type = 'bad';
-    } else if (rand < 0.95) { // 10% golden diamond
+    } else if (rand < 0.95) {
         type = 'diamond';
-    } else { // 5% skull
+    } else {
         type = 'skull';
     }
 
     let className = 'fallingObject';
     let content = '';
-    let width = 50; // All emojis will be 50x50
-    let height = 50; // All emojis will be 50x50
+    let width = 50;
+    let height = 50;
     let speed = 3 + Math.random() * 2;
 
     const spinSpeeds = ['spin-slow', 'spin-medium', 'spin-fast'];
     const spinDirections = ['cw', 'ccw'];
     const randomSpinSpeed = spinSpeeds[Math.floor(Math.random() * spinSpeeds.length)];
     const randomSpinDirection = spinDirections[Math.floor(Math.random() * spinDirections.length)];
-    className += ` ${randomSpinSpeed}-${randomSpinDirection}`; // Apply random spin
+    className += ` ${randomSpinSpeed}-${randomSpinDirection}`;
 
     if (type === 'good') {
-        const goodEmojis = ['⭐', '🌟', '✨', '💫']; // Space-themed stars
+        const goodEmojis = ['⭐', '🌟', '✨', '💫'];
         content = goodEmojis[Math.floor(Math.random() * goodEmojis.length)];
     } else if (type === 'bad') {
-        content = '👾'; // Alien emoji
+        content = '👾';
     } else if (type === 'diamond') {
-        const diamondEmojis = ['💎', '💠', '🔷', '🔶']; // More gemstone emojis
+        const diamondEmojis = ['💎', '💠', '🔷', '🔶'];
         content = diamondEmojis[Math.floor(Math.random() * diamondEmojis.length)];
     } else if (type === 'skull') {
-        content = '💀'; // Skull emoji
+        content = '💀';
     }
 
     const object = {
         element: document.createElement('div'),
-        x: 0, // Initial x will be set based on trajectory
+        x: 0,
         y: 0,
         width: width,
         height: height,
         speed: speed,
         type: type,
-        dx: 0 // Horizontal speed
+        dx: 0
     };
 
-    // Determine initial x and dx for varied trajectories
     const trajectoryType = Math.random();
-    if (trajectoryType < 0.3) { // Top-left to bottom-right
-        object.x = -width; // Start slightly off-screen left
-        object.dx = 1 + Math.random() * 2; // Move right
-    } else if (trajectoryType < 0.6) { // Top-right to bottom-left
-        object.x = gameAreaWidth; // Start slightly off-screen right
-        object.dx = -(1 + Math.random() * 2); // Move left
-    } else { // Straight down (or slight angle)
-        object.x = Math.random() * (gameAreaWidth - width);
-        object.dx = (Math.random() - 0.5) * 2; // Small random left/right drift
+    if (trajectoryType < 0.3) {
+        object.x = -width;
+        object.dx = 1 + Math.random() * 2;
+    } else if (trajectoryType < 0.6) {
+        object.x = gameState.gameAreaWidth;
+        object.dx = -(1 + Math.random() * 2);
+    } else {
+        object.x = Math.random() * (gameState.gameAreaWidth - width);
+        object.dx = (Math.random() - 0.5) * 2;
     }
 
     object.element.className = className;
@@ -167,149 +164,117 @@ function createFallingObject() {
     object.element.style.top = `${object.y}px`;
     object.element.textContent = content;
     gameArea.appendChild(object.element);
-    fallingObjects.push(object);
+    gameState.fallingObjects.push(object);
 }
 
 function updateFallingObjects() {
-    for (let i = 0; i < fallingObjects.length; i++) {
-        const object = fallingObjects[i];
+    for (let i = 0; i < gameState.fallingObjects.length; i++) {
+        const object = gameState.fallingObjects[i];
         object.y += object.speed;
-        object.x += object.dx; // Update horizontal position
+        object.x += object.dx;
         object.element.style.top = `${object.y}px`;
-        object.element.style.left = `${object.x}px`; // Update element's left style
+        object.element.style.left = `${object.x}px`;
 
-        // Check for collision with player1
-        if (checkCollision(player1, object)) {
+        if (checkCollision(gameState.player1, object)) {
             handleCollision(object, i);
-            i--; // Adjust index after removal
+            i--;
         }
-        // Check for collision with player2
-        else if (checkCollision(player2, object)) {
+        else if (checkCollision(gameState.player2, object)) {
             handleCollision(object, i);
-            i--; // Adjust index after removal
+            i--;
         }
-        else if (object.y + object.height > gameAreaHeight ||
-                   object.x + object.width < 0 || // Off screen left
-                   object.x > gameAreaWidth) { // Off screen right
-            // Object missed or went off screen, remove it
+        else if (object.y + object.height > gameState.gameAreaHeight ||
+                   object.x + object.width < 0 ||
+                   object.x > gameState.gameAreaWidth) {
             removeObject(i);
-            i--; // Adjust index after removal
+            i--;
         }
     }
 }
 
 function handleCollision(object, index) {
     if (object.type === 'good') {
-        score++;
-        yippeeSound.play();
+        gameState.score++;
+        gameState.yippeeSound.play();
     } else if (object.type === 'bad') {
-        score--;
-        ouchSound.play();
+        gameState.score--;
+        gameState.ouchSound.play();
     } else if (object.type === 'diamond') {
-        score += 10;
-        yahooSound.play(); // Use yahoo sound for diamond
+        gameState.score += 10;
+        gameState.yahooSound.play();
     } else if (object.type === 'skull') {
-        score = 0; // Lose all points
-        owowowowSound.play(); // Use owowowow sound for skull
+        gameState.score = 0;
+        gameState.owowowowSound.play();
     }
-    scoreBoard.textContent = `Score: ${score}`;
+    scoreBoard.textContent = `Score: ${gameState.score}`;
     removeObject(index);
 }
 
 function removeObject(index) {
-    gameArea.removeChild(fallingObjects[index].element);
-    fallingObjects.splice(index, 1);
+    gameArea.removeChild(gameState.fallingObjects[index].element);
+    gameState.fallingObjects.splice(index, 1);
 }
 
 function checkCollision(playerObj, object) {
-    // Simple AABB collision detection
     return playerObj.x < object.x + object.width &&
            playerObj.x + playerObj.width > object.x &&
            playerObj.y < object.y + object.height &&
            playerObj.y + playerObj.height > object.y;
 }
 
+function handlePlayerMovement(playerObj) {
+    if (gameState.keysPressed[playerObj.keys.left]) {
+        playerObj.x -= playerObj.speed;
+    }
+    if (gameState.keysPressed[playerObj.keys.right]) {
+        playerObj.x += playerObj.speed;
+    }
+    if (gameState.keysPressed[playerObj.keys.up]) {
+        playerObj.y -= playerObj.speed;
+    }
+    if (gameState.keysPressed[playerObj.keys.down]) {
+        playerObj.y += playerObj.speed;
+    }
+
+    if (playerObj.x < 0) {
+        playerObj.x = 0;
+    }
+    if (playerObj.x + playerObj.width > gameState.gameAreaWidth) {
+        playerObj.x = gameState.gameAreaWidth - playerObj.width;
+    }
+    if (playerObj.y < 0) {
+        playerObj.y = 0;
+    }
+    if (playerObj.y + playerObj.height > gameState.gameAreaHeight) {
+        playerObj.y = gameState.gameAreaHeight - playerObj.height;
+    }
+    updatePlayerPosition(playerObj);
+}
+
 function gameLoop() {
-    // Update player1 position based on pressed keys
-    if (keysPressed[player1.keys.left]) {
-        player1.x -= player1.speed;
-    }
-    if (keysPressed[player1.keys.right]) {
-        player1.x += player1.speed;
-    }
-    if (keysPressed[player1.keys.up]) {
-        player1.y -= player1.speed;
-    }
-    if (keysPressed[player1.keys.down]) {
-        player1.y += player1.speed;
-    }
-
-    // Keep player1 within game area bounds
-    if (player1.x < 0) {
-        player1.x = 0;
-    }
-    if (player1.x + player1.width > gameAreaWidth) {
-        player1.x = gameAreaWidth - player1.width;
-    }
-    if (player1.y < 0) {
-        player1.y = 0;
-    }
-    if (player1.y + player1.height > gameAreaHeight) {
-        player1.y = gameAreaHeight - player1.height;
-    }
-    updatePlayerPosition(player1);
-
-    // Update player2 position based on pressed keys
-    if (keysPressed[player2.keys.left]) {
-        player2.x -= player2.speed;
-    }
-    if (keysPressed[player2.keys.right]) {
-        player2.x += player2.speed;
-    }
-    if (keysPressed[player2.keys.up]) {
-        player2.y -= player2.speed;
-    }
-    if (keysPressed[player2.keys.down]) {
-        player2.y += player2.speed;
-    }
-
-    // Keep player2 within game area bounds
-    if (player2.x < 0) {
-        player2.x = 0;
-    }
-    if (player2.x + player2.width > gameAreaWidth) {
-        player2.x = gameAreaWidth - player2.width;
-    }
-    if (player2.y < 0) {
-        player2.y = 0;
-    }
-    if (player2.y + player2.height > gameAreaHeight) {
-        player2.y = gameAreaHeight - player2.height;
-    }
-    updatePlayerPosition(player2);
+    handlePlayerMovement(gameState.player1);
+    handlePlayerMovement(gameState.player2);
 
     updateFallingObjects();
     requestAnimationFrame(gameLoop);
 }
 
-// Keyboard input handling
 document.addEventListener('keydown', (e) => {
-    const key = e.key; // Use original key value
-    if ([player1.keys.left, player1.keys.right, player1.keys.up, player1.keys.down].includes(key)) {
-        keysPressed[key] = true;
-    } else if ([player2.keys.left, player2.keys.right, player2.keys.up, player2.keys.down].includes(key.toLowerCase())) {
-        keysPressed[key.toLowerCase()] = true; // Convert WASD to lowercase for consistency
+    const key = e.key;
+    if ([gameState.player1.keys.left, gameState.player1.keys.right, gameState.player1.keys.up, gameState.player1.keys.down].includes(key)) {
+        gameState.keysPressed[key] = true;
+    } else if ([gameState.player2.keys.left, gameState.player2.keys.right, gameState.player2.keys.up, gameState.player2.keys.down].includes(key.toLowerCase())) {
+        gameState.keysPressed[key.toLowerCase()] = true;
     }
 });
 
 document.addEventListener('keyup', (e) => {
-    const key = e.key; // Use original key value
-    if ([player1.keys.left, player1.keys.right, player1.keys.up, player1.keys.down].includes(key)) {
-        keysPressed[key] = false;
-    } else if ([player2.keys.left, player2.keys.right, player2.keys.up, player2.keys.down].includes(key.toLowerCase())) {
-        keysPressed[key.toLowerCase()] = false; // Convert WASD to lowercase for consistency
+    const key = e.key;
+    if ([gameState.player1.keys.left, gameState.player1.keys.right, gameState.player1.keys.up, gameState.player1.keys.down].includes(key)) {
+        gameState.keysPressed[key] = false;
+    } else if ([gameState.player2.keys.left, gameState.player2.keys.right, gameState.player2.keys.up, gameState.player2.keys.down].includes(key.toLowerCase())) {
+        gameState.keysPressed[key.toLowerCase()] = false;
     }
 });
 
-// Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', initGame);
