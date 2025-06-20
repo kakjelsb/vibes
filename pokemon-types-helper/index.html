@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Type Finder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pokémon Type Finder</h1>
+        <div class="search-section">
+            <input type="text" id="pokemon-search" placeholder="Enter Pokémon name">
+            <button id="search-button">Search</button>
+        </div>
+        <div id="loading-message" class="hidden">Loading...</div>
+        <div id="error-message" class="hidden"></div>
+        <div id="pokemon-display" class="hidden">
+            <h2 id="pokemon-name"></h2>
+            <img id="pokemon-image" src="" alt="Pokémon Image">
+            <p><strong>Types:</strong> <span id="pokemon-types"></span></p>
+            <h3>Super-Effective Against This Pokémon:</h3>
+            <ul id="super-effective-types"></ul>
+            <h3>This Pokémon is Super-Effective Against:</h3>
+            <ul id="effective-against-types"></ul>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
