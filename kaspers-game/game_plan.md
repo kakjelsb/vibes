@@ -5,7 +5,7 @@
 *   **Objective:** The player controls a character at the bottom of the screen, moving it left and right using the arrow keys to "catch" objects that fall from the top.
 *   **Scoring:** A visible score will track the number of objects successfully caught.
 *   **Gameplay:** Continuous play, with no "game over" condition. The focus is on simple, repetitive fun.
-*   **Theme:** (To be decided later - for now, placeholders will be used for player and objects).
+*   **Theme:** Space theme with emoji-based characters and objects.
 
 ## Technical Plan
 
@@ -22,100 +22,104 @@ The game will be built using standard web technologies: HTML, CSS, and JavaScrip
 ### 2. HTML Structure (`kaspers-game/index.html`)
 
 *   Basic HTML5 boilerplate.
-*   A `div` element to serve as the main game area (e.g., `<div id="gameArea"></div>`).
-*   A `div` element to display the current score (e.g., `<div id="scoreBoard">Score: 0</div>`).
-*   Links to the `style.css` file (in the `<head>`) and the `script.js` file (before the closing `</body>` tag).
+*   A main `div#gameContainer` to hold the game area and controls.
+*   A `div#gameArea` for gameplay.
+*   A `div#controls` containing a `label` and `input[type=range]#frequencySlider` for object frequency control, and a `span#frequencyValue` to display the current setting.
+*   A `div#scoreBoard` to display the score.
+*   Links to `style.css` and `script.js`.
 
 ### 3. CSS Styling (`kaspers-game/style.css`)
 
-*   **Body:** Basic page styling (e.g., background color, margin reset).
-*   **`#gameArea`:**
-    *   Define dimensions (width, height).
-    *   Set a border and/or background color/image.
-    *   Use `position: relative;` to allow absolute positioning of child elements (player, objects).
-*   **Player Character (e.g., `<div id="player"></div>` created by JS):**
-    *   Define dimensions (width, height).
-    *   Set a color or background image (placeholder initially).
-    *   Use `position: absolute;` for positioning within `#gameArea`.
-    *   Initial bottom and left/right positioning.
-*   **Falling Objects (e.g., `<div class="fallingObject"></div>` created by JS):**
-    *   Define dimensions (width, height).
-    *   Set a color or background image (placeholder initially).
-    *   Use `position: absolute;` for positioning.
-*   **`#scoreBoard`:**
-    *   Style font (family, size, color).
-    *   Position on the page (e.g., top-left corner).
+*   **Body:** Space-themed background, flex layout for centering `gameContainer`.
+*   **`#gameContainer`:** Flex layout to position `gameArea` and `controls` side-by-side.
+*   **`#gameArea`:** Defined dimensions, border, space-themed background, `position: relative`.
+*   **Player Characters (`.player-ship`, `#player1`, `#player2`):**
+    *   Styled as rotated spaceship emojis (🚀).
+    *   `#player2` has a `hue-rotate` filter for visual distinction.
+    *   Common styles in `.player-ship`, specific positioning/filters in IDs.
+*   **Falling Objects (`.fallingObject`):**
+    *   Styled for emoji display (transparent background, font size).
+    *   Various `spin-*` animation classes for different rotation speeds and directions.
+*   **`#scoreBoard`:** Positioned within `#gameArea`, styled for visibility.
+*   **`#controls` & Slider:** Styled for layout and appearance next to the game area.
 
 ### 4. JavaScript Logic (`kaspers-game/script.js`)
 
-*   **DOM Element References:**
-    *   Get references to `#gameArea` and `#scoreBoard`.
-*   **Game State Variables:**
-    *   `player`: Object to store player's properties (e.g., element, x-position, speed).
-    *   `fallingObjects`: Array to store active falling object elements and their properties (e.g., y-position, speed).
-    *   `score`: Number, initialized to 0.
-    *   `gameAreaBounds`: Object storing dimensions of the game area.
-*   **Player Logic:**
-    *   Function to create and append the player element to `#gameArea`.
-    *   Function to update the player's visual position (CSS `left` property).
-    *   Event listener for `keydown` to detect `ArrowLeft` and `ArrowRight` presses.
-    *   Logic to move the player left/right, ensuring it stays within the `gameAreaBounds`.
-*   **Falling Objects Logic:**
-    *   Function to create a new falling object element:
-        *   Random horizontal starting position (x-coordinate) at the top of `#gameArea`.
-        *   Append to `#gameArea`.
-        *   Add to the `fallingObjects` array.
-    *   Function to update the vertical position (CSS `top` property) of each object in `fallingObjects`, making it fall.
-    *   Logic to remove objects from the DOM and the `fallingObjects` array if they fall below the bottom of `#gameArea`.
-*   **Collision Detection:**
-    *   Function to check for overlap between the player's rectangle and each falling object's rectangle.
-    *   If a collision occurs:
-        *   Increment `score`.
-        *   Update the text content of `#scoreBoard`.
-        *   Remove the caught object from the DOM and the `fallingObjects` array.
-*   **Game Loop:**
-    *   A main function (e.g., `gameTick()`) that uses `requestAnimationFrame(gameTick)` for smooth animation.
-    *   Inside the loop:
-        *   Periodically call the function to create new falling objects.
-        *   Call the function to update positions of all falling objects.
-        *   Call the function to update player position (though movement is event-driven, redraw might be needed if not directly manipulating style in event handler).
-        *   Call the collision detection function.
-*   **Initialization Function (e.g., `initGame()`):**
-    *   Called when the script loads.
-    *   Sets up initial game state (score = 0, player position).
-    *   Creates the player element.
-    *   Starts the game loop.
+*   **`gameState` Object:** Centralized object holding:
+    *   `score`, `fallingObjects` array.
+    *   `objectCreationInterval`, references to `frequencySlider` and `frequencyValueDisplay`.
+    *   `gameAreaWidth`, `gameAreaHeight`.
+    *   `keysPressed` object for input tracking.
+    *   `player1` and `player2` objects, each containing:
+        *   `element` (DOM reference), `x`, `y`, `width`, `height`, `speed`.
+        *   `keys` object defining their control keys.
+    *   `Audio` objects for sound effects (`yippeeSound`, `ouchSound`, `yahooSound`, `owowowowSound`).
+*   **`fallingObjectConfigs` Object:** Configuration for different object types:
+    *   Defines `emojis` array, `points`, `sound`, `width`, `height`, `baseSpeed`, `speedVariance`, `spinChance` for 'good', 'bad', 'diamond', 'skull' types.
+*   **DOM Element References:** `gameArea` and `scoreBoard` obtained globally.
+*   **Initialization (`initGame()`):**
+    *   Creates and appends player elements (`#player1`, `#player2`) with `player-ship` class and '🚀' content.
+    *   Sets initial positions for both players.
+    *   Initializes frequency slider and its display.
+    *   Starts object creation interval using `startObjectCreationInterval()`.
+    *   Starts the `gameLoop()`.
+*   **`startObjectCreationInterval(interval)`:** Clears existing interval and sets a new one for `createFallingObject`.
+*   **`updatePlayerPosition(playerObj)`:** Updates a player's DOM element style.
+*   **`handlePlayerMovement(playerObj)`:**
+    *   Updates `playerObj.x`, `playerObj.y` based on `gameState.keysPressed` and `playerObj.keys`.
+    *   Performs boundary checks.
+    *   Calls `updatePlayerPosition(playerObj)`.
+*   **`createFallingObject()`:**
+    *   Determines object `type` based on probabilities.
+    *   Uses `fallingObjectConfigs` to get properties (emoji, speed, dimensions).
+    *   Randomly assigns spin animation class.
+    *   Determines initial `x` and `dx` for varied trajectories (top-left, top-right, or top-center with drift).
+    *   Creates DOM element, sets properties, appends to `gameArea`, and pushes to `gameState.fallingObjects`.
+*   **`updateFallingObjects()`:**
+    *   Iterates through `gameState.fallingObjects`.
+    *   Updates `y` (vertical speed) and `x` (horizontal speed `dx`).
+    *   Updates DOM element styles.
+    *   Checks for collisions with `gameState.player1` and `gameState.player2` using `checkCollision()`.
+    *   Calls `handleCollision()` if a collision occurs.
+    *   Removes objects that go off-screen (bottom, left, or right).
+*   **`handleCollision(object, index)`:**
+    *   Uses `fallingObjectConfigs` to determine points and sound.
+    *   Handles special score reset for 'skull'.
+    *   Updates `gameState.score` and `scoreBoard` text.
+    *   Plays appropriate sound.
+    *   Calls `removeObject()`.
+*   **`removeObject(index)`:** Removes object from DOM and `gameState.fallingObjects`.
+*   **`checkCollision(playerObj, object)`:** Standard AABB collision detection.
+*   **`gameLoop()`:**
+    *   Calls `handlePlayerMovement()` for `gameState.player1` and `gameState.player2`.
+    *   Calls `updateFallingObjects()`.
+    *   Uses `requestAnimationFrame(gameLoop)`.
+*   **Keyboard Event Listeners (`keydown`, `keyup`):**
+    *   Update `gameState.keysPressed` for both player1 (Arrow keys) and player2 (WASD, case-insensitive for WASD).
 
-### 5. Visual Enhancements (Iteration 1)
+### 5. Key Features & Implementation Details (Post-Refactoring)
 
-*   **Player Character:**
-    *   **Visual:** Change from a gold orb to a spaceship emoji (🚀).
-    *   **Implementation:**
-        *   **CSS ([`style.css`](kaspers-game/style.css)):** Modify `#player` styles. Remove `background-color` and `border-radius`. Adjust `width`, `height`, and `font-size` to appropriately size the emoji. Ensure it's centered.
-        *   **JavaScript ([`script.js`](kaspers-game/script.js)):**
-            *   In `initGame()`, set the `textContent` of `player.element` to '🚀'.
-            *   Adjust `player.width` and `player.height` in the `player` object to match the visual size of the emoji for accurate collision detection.
-*   **Background:**
-    *   Apply a subtle, space-themed static background image to the main page (`body`).
-    *   A placeholder URL will be used initially. (e.g., `url('https://www.transparenttextures.com/patterns/stardust.png')` or similar, to be refined).
-*   **Falling Object Visuals:**
-    *   **Good Objects:**
-        *   **Colors:** Implement a palette of friendly, bright colors (e.g., bright blue (`#3498db`), green (`#2ecc71`), orange (`#e67e22`), in addition to the existing purple (`#9b59b6`)).
-        *   **Shapes:** Continue using simple shapes (circle, square, triangle), randomly assigned.
-        *   **Animation:** Some good objects will have a spinning animation.
-    *   **Bad Objects:**
-        *   **Color:** Remain distinctly red (`#e74c3c`).
-        *   **Shape:** Red circles.
-    *   **Golden Diamond:**
-        *   **Visuals:** Gold (`#f1c40f`), diamond shape, spinning.
-    *   **Skull Shape:**
-        *   **Visuals:** Dark/black (`#34495e`) with a skull icon (💀).
-*   **Implementation Notes:**
-    *   [`style.css`](kaspers-game/style.css) will be updated for the player emoji, background image, and new classes for falling object colors, shapes, and animations.
-    *   [`script.js`](kaspers-game/script.js) will be updated:
-        *   `initGame()` to set player emoji.
-        *   `player` object with appropriate dimensions for the emoji.
-        *   `createFallingObject` function to randomly assign colors and shapes to "good" objects and ensure other special objects maintain their defined appearances.
+*   **Two Players:**
+    *   `player1` (Arrow Keys) and `player2` (WASD) controlled independently.
+    *   Both styled as rotated '🚀' emojis, with `player2` having a green hue via CSS filter.
+*   **Visuals:**
+    *   Space-themed background for the page and game area.
+    *   Falling objects are emojis:
+        *   Good: Stars (⭐, 🌟, ✨, 💫)
+        *   Bad: Alien (👾)
+        *   Diamond: Gemstones (💎, 💠, 🔷, 🔶) - worth +10 points.
+        *   Skull: Skull (💀) - resets score to 0.
+    *   All falling objects have random spin animations (varied speeds and directions).
+*   **Gameplay Mechanics:**
+    *   Dynamic object trajectories (falling from top, top-left, top-right with angles/drift).
+    *   Shared score for both players.
+    *   Sound effects for different collision types (good, bad, diamond, skull).
+    *   Slider control for object spawn frequency.
+*   **Code Structure ([`script.js`](kaspers-game/script.js)):**
+    *   Central `gameState` object manages most game variables and player data.
+    *   `fallingObjectConfigs` object defines properties for each object type (emojis, points, sounds, etc.), making `createFallingObject` more declarative.
+    *   `handlePlayerMovement(playerObj)` function for reusable player input and boundary logic.
+    *   `handleCollision(object, index)` function centralizes collision effects.
 
 ## Development Flow (Mermaid Diagram)
 

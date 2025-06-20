@@ -40,13 +40,13 @@ h1 {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
-#player1 {
+/* Base player styles */
+.player-ship {
     width: 60px; /* Adjust size for emoji */
     height: 60px; /* Adjust size for emoji */
     background-color: transparent; /* No background for emoji */
     position: absolute;
     bottom: 50px; /* Adjust position */
-    left: calc(50% - 30px); /* Centered initially */
     font-size: 50px; /* Size of the emoji */
     display: flex;
     align-items: center;
@@ -55,19 +55,12 @@ h1 {
     transform: rotate(-45deg); /* Rotate 45 degrees counterclockwise */
 }
 
+#player1 {
+    left: calc(50% - 30px - 80px); /* Position player1 to the left of center */
+}
+
 #player2 {
-    width: 60px; /* Adjust size for emoji */
-    height: 60px; /* Adjust size for emoji */
-    background-color: transparent; /* No background for emoji */
-    position: absolute;
-    bottom: 50px; /* Adjust position */
-    left: calc(50% - 30px); /* Centered initially */
-    font-size: 50px; /* Size of the emoji */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
-    transform: rotate(-45deg); /* Rotate 45 degrees counterclockwise, same as player1 */
+    left: calc(50% - 30px + 80px); /* Position player2 to the right of center */
     filter: hue-rotate(100deg); /* Change color to green */
 }
 
