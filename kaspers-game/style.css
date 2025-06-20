@@ -1,0 +1,166 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row; /* Arrange game area and controls side-by-side */
+    align-items: flex-start; /* Align items to the top */
+    justify-content: center;
+    min-height: 100vh;
+    padding-top: 20px; /* Add some space from the top */
+    background-color: #2c3e50; /* Dark blue/grey for space */
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); /* Placeholder space background */
+    background-size: cover;
+    background-position: center;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    color: #ecf0f1; /* Light text color for contrast */
+}
+
+h1 {
+    color: #ff6347; /* Tomato */
+    margin-bottom: 20px;
+}
+
+#gameContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px; /* Space between game area and controls */
+    align-items: flex-start;
+}
+
+#gameArea {
+    width: 800px; /* Even wider */
+    height: 800px;
+    border: 5px solid #4682b4; /* SteelBlue */
+    background-color: #0a0a2a; /* Dark space background for game area */
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); /* Same as body for consistency */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+#player1 {
+    width: 60px; /* Adjust size for emoji */
+    height: 60px; /* Adjust size for emoji */
+    background-color: transparent; /* No background for emoji */
+    position: absolute;
+    bottom: 50px; /* Adjust position */
+    left: calc(50% - 30px); /* Centered initially */
+    font-size: 50px; /* Size of the emoji */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
+    transform: rotate(-45deg); /* Rotate 45 degrees counterclockwise */
+}
+
+#player2 {
+    width: 60px; /* Adjust size for emoji */
+    height: 60px; /* Adjust size for emoji */
+    background-color: transparent; /* No background for emoji */
+    position: absolute;
+    bottom: 50px; /* Adjust position */
+    left: calc(50% - 30px); /* Centered initially */
+    font-size: 50px; /* Size of the emoji */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
+    transform: rotate(-45deg); /* Rotate 45 degrees counterclockwise, same as player1 */
+    filter: hue-rotate(100deg); /* Change color to green */
+}
+
+.fallingObject {
+    width: 50px; /* Emojis might need more space */
+    height: 50px; /* Emojis might need more space */
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px; /* Larger font size for emojis */
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for emojis */
+    background-color: transparent; /* Emojis don't need background */
+    border-radius: 0; /* Emojis define their own shape */
+}
+
+/* Spinning animations */
+@keyframes spin-cw {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spin-ccw {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+}
+
+.fallingObject.spin-slow-cw { animation: spin-cw 4s linear infinite; }
+.fallingObject.spin-medium-cw { animation: spin-cw 2s linear infinite; }
+.fallingObject.spin-fast-cw { animation: spin-cw 1s linear infinite; }
+.fallingObject.spin-slow-ccw { animation: spin-ccw 4s linear infinite; }
+.fallingObject.spin-medium-ccw { animation: spin-ccw 2s linear infinite; }
+.fallingObject.spin-fast-ccw { animation: spin-ccw 1s linear infinite; }
+
+#scoreBoard {
+    position: absolute; /* Position relative to #gameArea */
+    top: 10px;
+    left: 10px;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #2e8b57; /* SeaGreen */
+    z-index: 10; /* Ensure it's above game elements */
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    border-radius: 8px;
+    color: #ecf0f1;
+}
+
+#controls label {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+#frequencySlider {
+    width: 200px;
+    -webkit-appearance: none; /* Override default slider styles */
+    appearance: none;
+    height: 10px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 5px;
+}
+
+#frequencySlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#frequencySlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#frequencyValue {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #f1c40f; /* Gold color for value */
+}
