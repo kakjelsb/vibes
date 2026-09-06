@@ -9,13 +9,16 @@
 <body>
     <h1>Gjengen Levi og Kasper</h1>
     <div id="gameContainer">
-        <div id="gameArea"></div>
+        <div id="gameArea">
+            <div id="score1" class="score-board player1-score">🚀 Score: 0</div>
+            <div id="score2" class="score-board player2-score">🚀 Score: 0</div>
+        </div>
         <div id="controls">
             <label for="frequencySlider">Object Frequency:</label>
             <input type="range" id="frequencySlider" min="100" max="2000" value="1000" step="100">
             <span id="frequencyValue">1.0s</span>
+            <button id="muteButton" class="mute-button">🔊 Unmuted</button>
         </div>
-        <div id="scoreBoard">Score: 0</div>
     </div>
 
     <script src="script.js"></script>

@@ -77,6 +77,115 @@ h1 {
     border-radius: 0; /* Emojis define their own shape */
 }
 
+/* Glow classes - with background color to test if styles apply */
+.fallingObject.glow-good {
+    text-shadow: 0 0 4px #FFD700 !important;
+    background-color: rgba(255, 215, 0, 0.06) !important;
+    border-radius: 50%;
+}
+
+.fallingObject.glow-bad {
+    text-shadow: 0 0 8px #00FF00, 0 0 16px #00FF00 !important;
+    background-color: rgba(0, 255, 0, 0.15) !important;
+    border-radius: 50%;
+}
+
+.fallingObject.glow-diamond {
+    text-shadow: 0 0 8px #FFFFFF, 0 0 16px #87CEEB !important;
+    background-color: rgba(135, 206, 235, 0.15) !important;
+    border-radius: 50%;
+}
+
+.fallingObject.glow-skull {
+    text-shadow: 0 0 8px #FF4500, 0 0 16px #FF0000 !important;
+    background-color: rgba(255, 69, 0, 0.15) !important;
+    border-radius: 50%;
+}
+
+.fallingObject.glow-powerupSleep {
+    text-shadow: 0 0 8px #9370DB, 0 0 16px #9370DB !important;
+    background-color: rgba(147, 112, 219, 0.15) !important;
+    border-radius: 50%;
+}
+
+.fallingObject.glow-powerupMagnet {
+    text-shadow: 0 0 8px #FF1493, 0 0 16px #FF1493 !important;
+    background-color: rgba(255, 20, 147, 0.15) !important;
+    border-radius: 50%;
+}
+
+/* Sleeping player effect */
+.player-ship.sleeping {
+    opacity: 0.6;
+    animation: sleep-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes sleep-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.4; }
+}
+
+/* Magnetized player effect */
+.player-ship.magnetized {
+    animation: magnet-glow 0.6s ease-in-out infinite;
+}
+
+@keyframes magnet-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(255, 20, 147, 0.4), 0 0 20px rgba(255, 20, 147, 0.2); }
+    50% { text-shadow: 0 0 20px rgba(255, 20, 147, 0.7), 0 0 30px rgba(255, 20, 147, 0.4); }
+}
+
+/* Laser beam */
+.laser {
+    position: absolute;
+    background: linear-gradient(180deg, #00FF00 0%, #00DD00 100%);
+    box-shadow: 0 0 8px #00FF00, 0 0 16px #00FF00, inset 0 0 4px rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+
+/* Explosion effect */
+.explosion {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    margin-left: -30px;
+    margin-top: -30px;
+    pointer-events: none;
+    animation: explode 0.6s ease-out forwards;
+}
+
+.explosion::before {
+    content: '💥';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    animation: burst 0.6s ease-out forwards;
+}
+
+@keyframes explode {
+    0% {
+        opacity: 1;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+@keyframes burst {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3);
+    }
+}
+
 /* Spinning animations */
 @keyframes spin-cw {
     from { transform: rotate(0deg); }
@@ -95,14 +204,23 @@ h1 {
 .fallingObject.spin-medium-ccw { animation: spin-ccw 2s linear infinite; }
 .fallingObject.spin-fast-ccw { animation: spin-ccw 1s linear infinite; }
 
-#scoreBoard {
-    position: absolute; /* Position relative to #gameArea */
-    top: 10px;
-    left: 10px;
+.score-board {
+    position: absolute;
     font-size: 1.8em;
     font-weight: bold;
-    color: #2e8b57; /* SeaGreen */
-    z-index: 10; /* Ensure it's above game elements */
+    z-index: 10;
+}
+
+.player1-score {
+    top: 10px;
+    left: 10px;
+    color: #FF6347; /* Tomato red for player 1 */
+}
+
+.player2-score {
+    top: 10px;
+    right: 10px;
+    color: #2e8b57; /* SeaGreen for player 2 */
 }
 
 #controls {
@@ -156,4 +274,25 @@ h1 {
     font-size: 1.1em;
     font-weight: bold;
     color: #f1c40f; /* Gold color for value */
+}
+
+.mute-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    border: 2px solid #4CAF50;
+    background-color: #2d5016;
+    color: #ecf0f1;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mute-button:hover {
+    background-color: #4CAF50;
+    transform: scale(1.05);
+}
+
+.mute-button:active {
+    transform: scale(0.98);
 }
